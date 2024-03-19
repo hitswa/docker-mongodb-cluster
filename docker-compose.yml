@@ -1,0 +1,84 @@
+version: '3.7'
+
+services:
+  configsvr1:
+    image: mongo:latest
+    container_name: configsvr1
+    command: mongod --configsvr --replSet configReplSet --dbpath /data/db --port 27017 --bind_ip 0.0.0.0
+    volumes:
+      - config1:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - mongo-cluster
+
+  configsvr2:
+    image: mongo:latest
+    container_name: configsvr2
+    command: mongod --configsvr --replSet configReplSet --dbpath /data/db --port 27017 --bind_ip 0.0.0.0
+    volumes:
+      - config2:/data/db
+    ports:
+      - "27019:27017"
+    networks:
+      - mongo-cluster
+
+  configsvr3:
+    image: mongo:latest
+    container_name: configsvr3
+    command: mongod --configsvr --replSet configReplSet --dbpath /data/db --port 27017 --bind_ip 0.0.0.0
+    volumes:
+      - config3:/data/db
+    ports:
+      - "27020:27017"
+    networks:
+      - mongo-cluster
+
+  shard1rs1:
+    image: mongo:latest
+    container_name: shard1rs1
+    command: mongod --shardsvr --replSet shard1rs  --dbpath /data/db --port 27017 --bind_ip 0.0.0.0
+    volumes:
+      - shard1rs1:/data/db
+    ports:
+      - "27021:27017"
+    networks:
+      - mongo-cluster
+
+  shard1rs2:
+    image: mongo:latest
+    container_name: shard1rs2
+    command: mongod --shardsvr --replSet shard1rs  --dbpath /data/db --port 27017 --bind_ip 0.0.0.0
+    volumes:
+      - shard1rs2:/data/db
+    ports:
+      - "27022:27017"
+    networks:
+      - mongo-cluster
+
+  mongos:
+    image: mongo:latest
+    container_name: mongos
+    command: >
+      sh -c "mongos --configdb configReplSet/configsvr1:27017,configsvr2:27017,configsvr3:27017 --bind_ip 0.0.0.0 --port 27017 && ln -s /usr/bin/mongosh /usr/bin/mongo"
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1rs1
+      - shard1rs2
+    ports:
+      - "27017:27017"
+    networks:
+      - mongo-cluster
+
+volumes:
+  config1:
+  config2:
+  config3:
+  shard1rs1:
+  shard1rs2:
+
+networks:
+  mongo-cluster:
+    driver: bridge
