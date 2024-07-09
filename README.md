@@ -10,5 +10,5 @@
 
 Reference: 
 
-https://www.mongodb.com/basics/sharding
-https://www.mongodb.com/resources/products/fundamentals/clusters
+- https://www.mongodb.com/basics/sharding
+- https://www.mongodb.com/resources/products/fundamentals/clusters
